@@ -91,9 +91,10 @@ class CallBackPage(webapp2.RequestHandler):
         
         download = self.request.get('do_download')
         if download:
-            self.response.headers['Content-Type'] = 'multipart/form-data'
-#            self.response.headers['Content-Type']="text/html"
             filename = self.request.get("download")
+            self.response.headers['Content-Type'] = 'multipart/form-data'
+            self.response.headers['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            logging.info(self.response.headers)
             #need error handling. What if file entered does not exists?
             f, metadata = client.get_file_and_metadata('/{}'.format(filename))
             self.response.out.write(f.read())
