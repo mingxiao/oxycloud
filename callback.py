@@ -82,17 +82,29 @@ class CallBackPage(webapp2.RequestHandler):
     def post(self):
         #for right now just upload a dummy file
         user = self.request.get('user')
+        uploadFile = self.request.get('upload')
+        self.response.out.write(uploadFile)
         userToken = db.GqlQuery("SELECT * FROM UserToken WHERE username = :1",user).get()
         access_key = userToken.user_key
         access_secret = userToken.user_secret
         sess = dropbox.session.DropboxSession(data.app_key,data.app_secret)
         sess.set_token(access_key, access_secret)
         client = dropbox.client.DropboxClient(sess)
-        f = open('upload_test.txt')
-        response = client.put_file('/upload_test.txt', f)
-        self.response.out.write(response)
-        pass
         
+        download = self.request.get('do_download')
+        upload = self.request.get('do_upload')
+        if download:
+            f, metadata = client.get_file_and_metadata('/magnum-opus.txt')
+            home = os.path.expanduser("~")
+            outfile = os.path.join(home,'dropbox_dl.txt')
+            out = open(outfile, 'w')
+            out.write(f.read())
+            out.close()
+            print metadata
+            self.response.out.write("d/l")
+        else:
+            self.response.out.write('u/l')
+
         
 
 app = webapp2.WSGIApplication([('/callback', CallBackPage),], debug=True)
