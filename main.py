@@ -14,7 +14,7 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'text/html'
         template = jinja_env.get_template('index.html')
-        self.response.out.write(template.render())
+#        self.response.out.write(template.render())
         sess = dropbox.session.DropboxSession(data.app_key,data.app_secret)
         request_token = sess.obtain_request_token()
         logging.info(request_token.key+','+request_token.secret)
@@ -22,5 +22,9 @@ class MainPage(webapp2.RequestHandler):
         callback_url = self.request.url + 'callback?oauth_secret={}'.format(request_token.secret)
         auth_url = sess.build_authorize_url(request_token, callback_url)
         self.redirect(auth_url)
+        
+    def post(self):
+        pass
+        
 
 app = webapp2.WSGIApplication([('/', MainPage),], debug=True)
