@@ -29,7 +29,6 @@ class CallBackPage(webapp2.RequestHandler):
             userToken = db.GqlQuery("SELECT * FROM UserToken WHERE username = :1",user).get()
             access_key = userToken.user_key
             access_secret = userToken.user_secret
-            self.response.out.write("user already in our database")
             sess = dropbox.session.DropboxSession(data.app_key,data.app_secret)
             sess.set_token(access_key, access_secret)
         else:
@@ -81,6 +80,17 @@ class CallBackPage(webapp2.RequestHandler):
             return filesSorted[:n]
         
     def post(self):
+        #for right now just upload a dummy file
+        user = self.request.get('user')
+        userToken = db.GqlQuery("SELECT * FROM UserToken WHERE username = :1",user).get()
+        access_key = userToken.user_key
+        access_secret = userToken.user_secret
+        sess = dropbox.session.DropboxSession(data.app_key,data.app_secret)
+        sess.set_token(access_key, access_secret)
+        client = dropbox.client.DropboxClient(sess)
+        f = open('upload_test.txt')
+        response = client.put_file('/upload_test.txt', f)
+        self.response.out.write(response)
         pass
         
         
