@@ -12,6 +12,7 @@ import data
 import logging
 from userToken import UserToken
 from google.appengine.ext import db
+import cgi, cgitb 
 
 jinja_env = jinja2.Environment(autoescape=True, 
                                        loader = jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__),'templates')))
@@ -82,8 +83,6 @@ class CallBackPage(webapp2.RequestHandler):
     def post(self):
         #for right now just upload a dummy file
         user = self.request.get('user')
-        uploadFile = self.request.get('upload')
-        self.response.out.write(uploadFile)
         userToken = db.GqlQuery("SELECT * FROM UserToken WHERE username = :1",user).get()
         access_key = userToken.user_key
         access_secret = userToken.user_secret
@@ -91,17 +90,26 @@ class CallBackPage(webapp2.RequestHandler):
         sess.set_token(access_key, access_secret)
         client = dropbox.client.DropboxClient(sess)
         
+#        file_data = self.request.POST['upload']
+        
+#        self.response.out.write(file_data)
+#        u = form.getvalue("download")
         download = self.request.get('do_download')
-        upload = self.request.get('do_upload')
+#        upload = self.request.get('do_upload')
         if download:
-            f, metadata = client.get_file_and_metadata('/magnum-opus.txt')
-            #upload file to google cloud storage and then download from there
-            self.response.out.write("d/l")
+            self.response.headers['Content-Type'] = 'multipart/form-data'
+#            self.response.headers['Content-Type']="text/html"
+            filename = self.request.get("download")
+#            self.response.out.write(filename)
+            f, metadata = client.get_file_and_metadata('/{}'.format(filename))
+            self.response.out.write(f.read())
+#            #upload file to google cloud storage and then download from there
         else:
-            f = open('app.yaml')
-            response = client.put_file('/app.yaml', f)
-            print "uploaded:", response
-            self.redirect(self.request.url)
+            file_data = self.request.get('upload')
+            self.response.out.write(file_data)
+#            response = client.put_file('/upload.txt', file_data)
+#            print "uploaded:", response
+#            self.redirect(self.request.url)
 
         
 

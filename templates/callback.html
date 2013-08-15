@@ -13,14 +13,14 @@
 	
 	
 	<h2> Upload a file </h2>
-	<form method='post'>
+	<form method='post' enctype="multipart/form-data">
 	<input type="file" name="upload">
 	<input type='submit' name = 'do_upload'>
 	</form>
 	
 	<h2> Download a file </h2>
 	<form method='post'>
-	<input type="file" name="download">
+	<input type="text" name="download">
 	<input type='submit' name = 'do_download'>
 	</form>
 	
