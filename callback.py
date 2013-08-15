@@ -23,27 +23,30 @@ class CallBackPage(webapp2.RequestHandler):
         user=self.request.get('user')
         token_key = self.request.get('oauth_token') #request token key
         token_secret = self.request.get('oauth_secret')
+        #get the access key and secret
         if user and not token_key and not token_secret:
             #this means our user should already be in our DB
             userToken = db.GqlQuery("SELECT * FROM UserToken WHERE username = :1",user).get()
             access_key = userToken.user_key
             access_secret = userToken.user_secret
             self.response.out.write("user already in our database")
+            sess = dropbox.session.DropboxSession(data.app_key,data.app_secret)
+            sess.set_token(access_key, access_secret)
         else:
             sess = dropbox.session.DropboxSession(data.app_key,data.app_secret)
             sess.set_request_token(token_key, token_secret)
             access_token = sess.obtain_access_token()
             self.insertNewUser(user,access_token)
-            client = dropbox.client.DropboxClient(sess)
-            client_data = client.metadata('/')
-            files = client_data['contents'] #files is a list of dictionaries
-            #get the ten most recently modified files
-            filesOnly = self.getFilesOnly(files)
-            recentlyModifiedFiles = self.mostRecentlyModified(filesOnly,10)
-            d = {'filesToList':recentlyModifiedFiles}
-            template = jinja_env.get_template('callback.html')
-            logging.info(token_key +" "+token_secret)
-            self.response.out.write(template.render(**d))
+        client = dropbox.client.DropboxClient(sess)
+        client_data = client.metadata('/')
+        files = client_data['contents'] #files is a list of dictionaries
+        #get the ten most recently modified files
+        filesOnly = self.getFilesOnly(files)
+        recentlyModifiedFiles = self.mostRecentlyModified(filesOnly,10)
+        d = {'filesToList':recentlyModifiedFiles}
+        template = jinja_env.get_template('callback.html')
+        logging.info(token_key +" "+token_secret)
+        self.response.out.write(template.render(**d))
             
     def insertNewUser(self,user, access_token):
         """
@@ -78,17 +81,7 @@ class CallBackPage(webapp2.RequestHandler):
             return filesSorted[:n]
         
     def post(self):
-#        upload files
-        token_key = self.request.get('oauth_token')
-        token_secret = self.request.get('oauth_secret')
-        sess = dropbox.session.DropboxSession(data.app_key,data.app_secret)
-
-        sess.set_request_token(token_key, token_secret)
-        sess.obtain_access_token()
-        client = dropbox.client.DropboxClient(sess)
-#        f = open('main.py','r')
-#        response = client.put_file('/main.py',f)
-#        self.response.out.write(response)
+        pass
         
         
 
