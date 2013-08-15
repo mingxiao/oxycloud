@@ -95,15 +95,13 @@ class CallBackPage(webapp2.RequestHandler):
         upload = self.request.get('do_upload')
         if download:
             f, metadata = client.get_file_and_metadata('/magnum-opus.txt')
-            home = os.path.expanduser("~")
-            outfile = os.path.join(home,'dropbox_dl.txt')
-            out = open(outfile, 'w')
-            out.write(f.read())
-            out.close()
-            print metadata
+            #upload file to google cloud storage and then download from there
             self.response.out.write("d/l")
         else:
-            self.response.out.write('u/l')
+            f = open('app.yaml')
+            response = client.put_file('/app.yaml', f)
+            print "uploaded:", response
+            self.redirect(self.request.url)
 
         
 
