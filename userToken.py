@@ -9,8 +9,8 @@ from google.appengine.ext import db
 Access token per user
 """
 class UserToken(db.Model):
-    user= db.StringProperty(required =True)
-    key = db.StringProperty(required = True)
-    secret = db.StringProperty(requred =True)
+    username= db.StringProperty(required =True)
+    user_key = db.StringProperty(required = True)
+    user_secret = db.StringProperty(required =True)
     created = db.DateTimeProperty(auto_now_add=True)
     

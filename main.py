@@ -5,6 +5,7 @@ import dropbox
 import data
 import logging
 from userToken import UserToken
+from google.appengine.ext import db
 
 jinja_env = jinja2.Environment(autoescape=True, 
                                        loader = jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__),'templates')))
@@ -26,6 +27,14 @@ class MainPage(webapp2.RequestHandler):
         
     def post(self):
         user = self.request.get('user')
+        userToken = db.GqlQuery("SELECT * FROM UserToken WHERE user_id = :1",user).get()
+        if userToken:
+            self.response.out.write('user exists')
+            pass
+        else:
+            self.response.out.write('user does not exists')
+            pass
+        #check if we have that user in our DB
         pass
         
 
